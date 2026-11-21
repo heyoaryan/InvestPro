@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
 
         const ip = credentials.ip ?? "unknown";
         const rateLimitKey = `login:${ip}`;
-        const limit = checkRateLimit(rateLimitKey);
+        const limit = await checkRateLimit(rateLimitKey);
 
         if (!limit.allowed) {
           throw new Error(
@@ -47,7 +47,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Successful login — clear the rate limit counter
-        resetRateLimit(rateLimitKey);
+        await resetRateLimit(rateLimitKey);
 
         return {
           id: user.id,

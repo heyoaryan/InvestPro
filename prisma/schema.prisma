@@ -164,3 +164,14 @@ model AdminReserve {
   fromCommissionId String?
   createdAt        DateTime @default(now())
 }
+
+model LoginAttempt {
+  id             String    @id @default(cuid())
+  key            String    @unique
+  count          Int       @default(1)
+  firstAttemptAt DateTime  @default(now())
+  lockedUntil    DateTime?
+  updatedAt      DateTime  @updatedAt
+
+  @@index([key])
+}

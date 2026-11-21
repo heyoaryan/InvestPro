@@ -12,8 +12,8 @@ out/
 .env.test.local
 .env.production.local
 
-# prisma
-prisma/migrations/
+# prisma — track migrations, ignore generated files
+# prisma/migrations/
 
 # build
 tsconfig.tsbuildinfo

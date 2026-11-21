@@ -1,14 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  // Catch unhandled promise rejections during build
-  typescript: {
-    ignoreBuildErrors: false,
-  },
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
-
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // Security headers for every response
   async headers() {
     return [

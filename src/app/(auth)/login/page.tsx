@@ -72,7 +72,7 @@ function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
-          placeholder="you@example.com"
+          placeholder="Enter your email"
           className="w-full h-10 bg-[#1a1a1a] border border-white/[0.08] rounded-xl px-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-indigo-500 transition-colors"
         />
       </div>

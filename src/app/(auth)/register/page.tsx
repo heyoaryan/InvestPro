@@ -155,8 +155,8 @@ function RegisterForm() {
   };
 
   const fields = [
-    { key: "name" as const, label: "Full name", type: "text", placeholder: "John Doe" },
-    { key: "email" as const, label: "Email", type: "email", placeholder: "you@example.com" },
+    { key: "name" as const, label: "Full name", type: "text", placeholder: "Enter your full name" },
+    { key: "email" as const, label: "Email", type: "email", placeholder: "Enter your email" },
     { key: "password" as const, label: "Password", type: "password", placeholder: "Min. 8 characters" },
     { key: "referralCode" as const, label: "Referral code", type: "text", placeholder: "Optional" },
   ];

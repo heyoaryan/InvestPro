@@ -2,18 +2,14 @@ import { prisma } from "@/lib/db";
 import { AdminUserActions } from "@/components/admin/admin-user-actions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
-const roleBadge: Record<string, string> = {
-  ADMIN: "bg-rose-500/10 text-rose-400",
-  MEMBER: "bg-neutral-700 text-neutral-400",
-};
-
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: { search?: string; page?: string };
+  searchParams: Promise<{ search?: string; page?: string }> | { search?: string; page?: string };
 }) {
-  const search = searchParams.search ?? "";
-  const page = parseInt(searchParams.page ?? "1");
+  const params = await Promise.resolve(searchParams);
+  const search = params.search ?? "";
+  const page = parseInt(params.page ?? "1");
   const perPage = 20;
 
   const where = search
@@ -74,47 +70,49 @@ export default async function AdminUsersPage({
       </div>
 
       <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-        {/* Table header */}
         <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 border-b border-neutral-800">
           {["User", "Code", "Package", "Directs", "Wallet", "Joined", ""].map((h) => (
             <p key={h} className="text-xs text-neutral-500 font-medium uppercase tracking-wide">{h}</p>
           ))}
         </div>
 
-        {/* Rows */}
-        <div className="divide-y divide-neutral-800">
-          {users.map((user) => {
-            const pkg = user.packages[0];
-            return (
-              <div
-                key={user.id}
-                className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3.5 items-center hover:bg-neutral-800/40 transition-colors"
-              >
-                <div>
-                  <p className="text-sm text-white font-medium">{user.name}</p>
-                  <p className="text-xs text-neutral-500">{user.email}</p>
+        {users.length === 0 ? (
+          <div className="px-5 py-10 text-sm text-neutral-600 text-center">No users found</div>
+        ) : (
+          <div className="divide-y divide-neutral-800">
+            {users.map((user) => {
+              const pkg = user.packages[0];
+              return (
+                <div
+                  key={user.id}
+                  className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3.5 items-center hover:bg-neutral-800/40 transition-colors"
+                >
+                  <div>
+                    <p className="text-sm text-white font-medium">{user.name}</p>
+                    <p className="text-xs text-neutral-500">{user.email}</p>
+                  </div>
+                  <p className="text-xs font-mono text-neutral-400">{user.referralCode}</p>
+                  <div>
+                    {pkg ? (
+                      <>
+                        <span className="text-xs font-medium text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded-full">
+                          {pkg.tier}
+                        </span>
+                        <p className="text-xs text-neutral-500 mt-0.5">{formatCurrency(pkg.totalEarned)}</p>
+                      </>
+                    ) : (
+                      <span className="text-xs text-neutral-600">None</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-neutral-400">{user._count.referrals}</p>
+                  <p className="text-sm font-semibold text-green-400">{formatCurrency(user.walletBalance)}</p>
+                  <p className="text-xs text-neutral-500">{formatDate(user.createdAt)}</p>
+                  <AdminUserActions userId={user.id} userName={user.name} />
                 </div>
-                <p className="text-xs font-mono text-neutral-400">{user.referralCode}</p>
-                <div>
-                  {pkg ? (
-                    <>
-                      <span className="text-xs font-medium text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded-full">
-                        {pkg.tier}
-                      </span>
-                      <p className="text-xs text-neutral-500 mt-0.5">{formatCurrency(pkg.totalEarned)}</p>
-                    </>
-                  ) : (
-                    <span className="text-xs text-neutral-600">None</span>
-                  )}
-                </div>
-                <p className="text-sm text-neutral-400">{user._count.referrals}</p>
-                <p className="text-sm font-semibold text-green-400">{formatCurrency(user.walletBalance)}</p>
-                <p className="text-xs text-neutral-500">{formatDate(user.createdAt)}</p>
-                <AdminUserActions userId={user.id} userName={user.name} />
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {total > perPage && (

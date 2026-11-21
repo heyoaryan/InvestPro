@@ -25,8 +25,13 @@ function groupByDate(
   return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([date, v]) => ({ date, ...v }));
 }
 
-export default async function AdminReportsPage({ searchParams }: { searchParams: { period?: string } }) {
-  const period = parseInt(searchParams.period ?? "30");
+export default async function AdminReportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }> | { period?: string };
+}) {
+  const params = await Promise.resolve(searchParams);
+  const period = parseInt(params.period ?? "30");
 
   const [transactions, topEarners] = await Promise.all([
     prisma.transaction.findMany({
@@ -86,33 +91,35 @@ export default async function AdminReportsPage({ searchParams }: { searchParams:
         <PlatformStatsChart data={data} />
       </div>
 
-      <div>
-        <p className="text-[13px] font-medium text-neutral-300 mb-3">Top 10 Earners</p>
-        <div className="rounded-2xl bg-[#141414] border border-white/[0.07] divide-y divide-white/[0.04] overflow-hidden">
-          {topEarners.map((user, idx) => {
-            const pkg = user.packages[0];
-            return (
-              <div key={user.id} className="flex items-center justify-between px-5 py-3.5">
-                <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[11px] font-bold text-neutral-400 shrink-0">
-                    {idx + 1}
-                  </span>
-                  <div>
-                    <p className="text-[13px] text-white font-medium">{user.name}</p>
-                    <p className="text-[11px] text-neutral-500">
-                      {user._count.referrals} referrals{pkg ? ` · ${pkg.tier}` : ""}
-                    </p>
+      {topEarners.length > 0 && (
+        <div>
+          <p className="text-[13px] font-medium text-neutral-300 mb-3">Top 10 Earners</p>
+          <div className="rounded-2xl bg-[#141414] border border-white/[0.07] divide-y divide-white/[0.04] overflow-hidden">
+            {topEarners.map((user, idx) => {
+              const pkg = user.packages[0];
+              return (
+                <div key={user.id} className="flex items-center justify-between px-5 py-3.5">
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center text-[11px] font-bold text-neutral-400 shrink-0">
+                      {idx + 1}
+                    </span>
+                    <div>
+                      <p className="text-[13px] text-white font-medium">{user.name}</p>
+                      <p className="text-[11px] text-neutral-500">
+                        {user._count.referrals} referrals{pkg ? ` · ${pkg.tier}` : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[13px] font-semibold text-emerald-400">{formatCurrency(user.walletBalance)}</p>
+                    {pkg && <p className="text-[11px] text-neutral-500">{formatCurrency(pkg.totalEarned)} earned</p>}
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-[13px] font-semibold text-emerald-400">{formatCurrency(user.walletBalance)}</p>
-                  {pkg && <p className="text-[11px] text-neutral-500">{formatCurrency(pkg.totalEarned)} earned</p>}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

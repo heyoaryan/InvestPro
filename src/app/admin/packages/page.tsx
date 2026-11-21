@@ -11,10 +11,11 @@ const statusStyle: Record<string, string> = {
 export default async function AdminPackagesPage({
   searchParams,
 }: {
-  searchParams: { status?: string; page?: string };
+  searchParams: Promise<{ status?: string; page?: string }> | { status?: string; page?: string };
 }) {
-  const status = searchParams.status ?? "";
-  const page = parseInt(searchParams.page ?? "1");
+  const params = await Promise.resolve(searchParams);
+  const status = params.status ?? "";
+  const page = parseInt(params.page ?? "1");
   const perPage = 25;
 
   const where = status ? { status: status as "ACTIVE" | "CAPPED" | "PENDING" | "REJECTED" } : {};
@@ -64,7 +65,7 @@ export default async function AdminPackagesPage({
 
       <div className="rounded-2xl bg-[#141414] border border-white/[0.07] overflow-hidden">
         <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1.5fr_1fr_1fr] gap-3 px-5 py-3 border-b border-white/[0.06]">
-          {["User","Tier","Invested","Earned","Cap","Progress","Status","Started"].map((h) => (
+          {["User", "Tier", "Invested", "Earned", "Cap", "Progress", "Status", "Started"].map((h) => (
             <p key={h} className="text-[11px] font-medium text-neutral-500 uppercase tracking-wide">{h}</p>
           ))}
         </div>

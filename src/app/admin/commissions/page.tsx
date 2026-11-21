@@ -17,9 +17,10 @@ function InstCell({ amount, paid, paidAt }: { amount: number; paid: boolean; pai
 export default async function AdminCommissionsPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }> | { page?: string };
 }) {
-  const page = parseInt(searchParams.page ?? "1");
+  const params = await Promise.resolve(searchParams);
+  const page = parseInt(params.page ?? "1");
   const perPage = 25;
 
   const [commissions, total, reserve] = await Promise.all([
@@ -53,7 +54,7 @@ export default async function AdminCommissionsPage({
 
       <div className="rounded-2xl bg-[#141414] border border-white/[0.07] overflow-hidden">
         <div className="grid grid-cols-[1.5fr_1.5fr_0.5fr_1fr_1fr_1fr_1fr_1fr] gap-3 px-5 py-3 border-b border-white/[0.06]">
-          {["From","To","L","Total","Day 10","Day 20","Day 30","Date"].map((h) => (
+          {["From", "To", "L", "Total", "Day 10", "Day 20", "Day 30", "Date"].map((h) => (
             <p key={h} className="text-[11px] font-medium text-neutral-500 uppercase tracking-wide">{h}</p>
           ))}
         </div>

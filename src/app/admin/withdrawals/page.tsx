@@ -11,9 +11,10 @@ const statusStyle: Record<string, string> = {
 export default async function AdminWithdrawalsPage({
   searchParams,
 }: {
-  searchParams: { status?: string };
+  searchParams: Promise<{ status?: string }> | { status?: string };
 }) {
-  const status = searchParams.status ?? "PENDING";
+  const params = await Promise.resolve(searchParams);
+  const status = params.status ?? "PENDING";
   const where = status === "ALL" ? {} : { status: status as "PENDING" | "APPROVED" | "REJECTED" };
 
   const [withdrawals, pendingCount] = await Promise.all([
@@ -40,7 +41,6 @@ export default async function AdminWithdrawalsPage({
         <p className="text-sm text-neutral-500 mt-0.5">{pendingCount} pending approval</p>
       </div>
 
-      {/* Filter tabs */}
       <div className="flex gap-2">
         {filters.map((f) => (
           <a
@@ -58,7 +58,6 @@ export default async function AdminWithdrawalsPage({
       </div>
 
       <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-        {/* Header */}
         <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 border-b border-neutral-800">
           {["User", "Amount", "Fee", "Net", "Status", "Requested", ""].map((h) => (
             <p key={h} className="text-xs text-neutral-500 font-medium uppercase tracking-wide">{h}</p>
@@ -81,11 +80,7 @@ export default async function AdminWithdrawalsPage({
                 <p className="text-sm font-semibold text-white">{formatCurrency(w.amount)}</p>
                 <p className="text-sm text-red-400">−{formatCurrency(w.fee)}</p>
                 <p className="text-sm font-semibold text-green-400">{formatCurrency(w.netAmount)}</p>
-                <span
-                  className={`text-xs font-medium px-2 py-0.5 rounded-full w-fit ${
-                    statusStyle[w.status] ?? "bg-neutral-700 text-neutral-400"
-                  }`}
-                >
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full w-fit ${statusStyle[w.status] ?? "bg-neutral-700 text-neutral-400"}`}>
                   {w.status}
                 </span>
                 <p className="text-xs text-neutral-500">{formatDateTime(w.requestedAt)}</p>
